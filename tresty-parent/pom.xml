@@ -2,7 +2,7 @@
 <!--
 
     The MIT License
-    Copyright © 2022 Timo Janssen
+    Copyright © 2021 Timo Janssen
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -25,14 +25,14 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io.github.tresty</groupId>
-  <artifactId>tresty</artifactId>
+  <groupId>tresty-parent</groupId>
+  <artifactId>tresty-parent</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>tresty</name>
-  <description>The tresty aggregate pom</description>
-  <url>https://tijanssen.github.io/tresty/</url>
-  <inceptionYear>2022</inceptionYear>
+  <name>tresty-parent</name>
+  <description>The tresty parent pom</description>
+  <url>https://tijanssen.github.io/tresty/tresty-parent/</url>
+  <inceptionYear>2021</inceptionYear>
   <organization>
     <name>Timo Janssen</name>
     <url>https://github.com/tijanssen/</url>
@@ -51,9 +51,6 @@
       <email>timo.janssen357@gmail.com</email>
     </developer>
   </developers>
-  <modules>
-    <module>tresty-parent</module>
-  </modules>
   <scm>
     <connection>scm:git:https://github.com/tijanssen/tresty.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/tijanssen/tresty.git</developerConnection>
@@ -76,7 +73,7 @@
     </repository>
     <site>
       <id>github</id>
-      <url>scm:git:ssh://git@github.com/tijanssen/tresty.git/</url>
+      <url>scm:git:ssh://git@github.com/tijanssen/tresty.git/tresty-parent/</url>
     </site>
   </distributionManagement>
   <properties>
@@ -89,16 +86,19 @@
       <plugins>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>3.0.0-M2</version>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.10.1</version>
           <configuration>
-            <skip>true</skip>
+            <fork>true</fork>
+            <release>${java.version}</release>
+            <showDeprecation>true</showDeprecation>
+            <showWarnings>true</showWarnings>
           </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-install-plugin</artifactId>
-          <version>3.0.0-M1</version>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>3.0.0-M2</version>
           <configuration>
             <skip>true</skip>
           </configuration>
@@ -182,8 +182,16 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>3.0.0-M1</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
         <version>3.11.0</version>
+        <configuration>
+          <topSiteURL>scm:git:ssh://git@github.com/tijanssen/tresty.git/</topSiteURL>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.kordamp.maven</groupId>
@@ -218,4 +226,30 @@
       </plugin>
     </plugins>
   </reporting>
+  <profiles>
+    <profile>
+      <id>internal-development</id>
+      <activation>
+        <property>
+          <name>!release</name>
+        </property>
+      </activation>
+      <properties>
+        <maven.compiler.debug>true</maven.compiler.debug>
+        <maven.compiler.debuglevel>lines,vars,source&gt;/</maven.compiler.debuglevel>
+      </properties>
+    </profile>
+    <profile>
+      <id>internal-release</id>
+      <activation>
+        <property>
+          <name>release</name>
+        </property>
+      </activation>
+      <properties>
+        <maven.compiler.debug>false</maven.compiler.debug>
+        <maven.compiler.failOnWarning>true</maven.compiler.failOnWarning>
+      </properties>
+    </profile>
+  </profiles>
 </project>
