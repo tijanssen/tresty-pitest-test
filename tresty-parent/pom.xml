@@ -25,9 +25,9 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>tresty-parent</groupId>
-  <artifactId>tresty-parent</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+    <groupId>io.github.tresty</groupId>
+    <artifactId>tresty-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>tresty-parent</name>
   <description>The tresty parent pom</description>
@@ -81,6 +81,22 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>3.22.0</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.8.2</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <build>
     <pluginManagement>
       <plugins>
@@ -156,26 +172,6 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>io.github.phillipuniverse</groupId>
-        <artifactId>githook-maven-plugin</artifactId>
-        <version>1.0.5</version>
-        <executions>
-          <execution>
-            <id>githooks-precommit</id>
-            <goals>
-              <goal>install</goal>
-            </goals>
-            <phase>initialize</phase>
-            <configuration>
-              <hooks>
-                <pre-commit>echo running validation build
-                                    exec mvn -q --batch-mode clean install -Drelease</pre-commit>
-              </hooks>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-clean-plugin</artifactId>
         <version>3.2.0</version>
@@ -188,10 +184,15 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
-        <version>3.11.0</version>
+        <version>3.10.0</version>
         <configuration>
           <topSiteURL>scm:git:ssh://git@github.com/tijanssen/tresty.git/</topSiteURL>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0-M6</version>
       </plugin>
       <plugin>
         <groupId>org.kordamp.maven</groupId>
@@ -235,9 +236,46 @@
         </property>
       </activation>
       <properties>
-        <maven.compiler.debug>true</maven.compiler.debug>
-        <maven.compiler.debuglevel>lines,vars,source&gt;/</maven.compiler.debuglevel>
+        <maven.compiler.debuglevel>lines,vars,source</maven.compiler.debuglevel>
       </properties>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.pitest</groupId>
+              <artifactId>pitest-maven</artifactId>
+              <version>1.7.5</version>
+              <configuration>
+                <exportLineCoverage>true</exportLineCoverage>
+                <historyInputFile>${project.build.directory}/pitest-history.bin</historyInputFile>
+                <historyOutputFile>${project.build.directory}/pitest-history.bin</historyOutputFile>
+                <outputFormats>
+                  <outputFormat>html</outputFormat>
+                  <outputFormat>xml</outputFormat>
+                </outputFormats>
+                <timestampedReports>false</timestampedReports>
+                <verbosity>QUIET</verbosity>
+              </configuration>
+              <dependencies>
+                <dependency>
+                  <groupId>org.pitest</groupId>
+                  <artifactId>pitest-junit5-plugin</artifactId>
+                  <version>0.15</version>
+                </dependency>
+              </dependencies>
+              <executions>
+                <execution>
+                  <id>pitest-mutationCoverage</id>
+                  <goals>
+                    <goal>mutationCoverage</goal>
+                  </goals>
+                  <phase>verify</phase>
+                </execution>
+              </executions>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
     </profile>
     <profile>
       <id>internal-release</id>
@@ -250,6 +288,44 @@
         <maven.compiler.debug>false</maven.compiler.debug>
         <maven.compiler.failOnWarning>true</maven.compiler.failOnWarning>
       </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest-maven</artifactId>
+            <version>1.7.5</version>
+            <configuration>
+              <coverageThreshold>100</coverageThreshold>
+              <exportLineCoverage>true</exportLineCoverage>
+              <maxSurviving>0</maxSurviving>
+              <mutationThreshold>100</mutationThreshold>
+              <outputFormats>
+                <outputFormat>html</outputFormat>
+                <outputFormat>xml</outputFormat>
+              </outputFormats>
+              <testStrengthThreshold>100</testStrengthThreshold>
+              <timestampedReports>false</timestampedReports>
+              <verbosity>QUIET</verbosity>
+            </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-junit5-plugin</artifactId>
+                <version>0.15</version>
+              </dependency>
+            </dependencies>
+            <executions>
+              <execution>
+                <id>pitest-mutationCoverage</id>
+                <goals>
+                  <goal>mutationCoverage</goal>
+                </goals>
+                <phase>verify</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 </project>
